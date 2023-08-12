@@ -73,8 +73,10 @@ def add_state(info, history, message_key, message_history):
         chatbot_bindings.start()
         # chatbot_bindings = 1
         response = '**初始化成功！**'
-    except:
+    except Exception as err:
         chatbot_bindings = None
+        print('error:')
+        print(err)
         response = '**初始化失败，请输入正确的openai key。**'
         
     message_key = [{"role": "api_key", "content": info}]

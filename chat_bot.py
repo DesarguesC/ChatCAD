@@ -198,7 +198,7 @@ class gpt_bot(base_bot):
         # check_message=self.chat_with_gpt(check_prompt+'\n'+message)
         print(f"check message: {check_message}")
         numbers = re.findall(r'\d+', check_message)
-        assert len(numbers)==1
+        assert len(numbers)==1, 'the answer of GPT3.5 not satisfied'
         check=eval(numbers[0])
         if check==0:
             ans=self.chat_with_gpt(f"{ref_record}\nuser:**以中文回答**\n"+message)
