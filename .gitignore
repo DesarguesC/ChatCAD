@@ -13,6 +13,7 @@ weights/
 database.db
 # Distribution / packaging
 .Python
+upload_files/
 build/
 develop-eggs/
 dist/
