@@ -1,2 +1,2 @@
 conda activate CAD
-python -m streamlit run test.py --server.port 8888
+python -m streamlit run test.py --server.port 6060
