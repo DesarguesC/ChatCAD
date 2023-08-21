@@ -4,24 +4,54 @@ import threading
 import time
 from streamlit.runtime.scriptrunner import add_script_run_ctx as ctx
 # from streamlit.runtime.scriptrunner.script_run_context import get_script_run_ctx
-# import cv2
+import cv2
 from chat_bot import gpt_bot
-import nibabek as nib
+import nibabel as nib
 from datetime import datetime
-from PIL import image
+from PIL import Image
+import random
 
+global name, logo
 name = "desargues"
-logo = image.open('./assets/logo.png')
+logo = Image.open('./assets/logo.png')
+st.set_page_config(page_title="💬 望问医聊")
 
+
+def get_name(num: int, le: int) -> str:
+    # num: session_state.upload_num
+    assert isinstance(num, int)
+    assert isinstance(le, int)
+    # assert num > 0, f'num = {num}'
+    f = 0
+    while num > 0:
+        num //= 10
+        f += 1
+    assert f >= 0
+    
+    return '0' * f + str(num)
+
+def save_img(img_file, name):
+    if not os.path.exists('./upload_files'):
+        os.mkdir('./upload_files/')
+    img = Image.open(img_file)
+    img.save(name)
+    
+    
 
 class JumpePage_debug_callback:
     def __init__(self, de=True):
         self.de = de
-        # 初始化 session_state
+        # init session_state
         if 'page_state' not in st.session_state:
             st.session_state.page_state = None
         if 'find_state' not in st.session_state:
             st.session_state.find_state = None
+        if 'upload_num' not in st.session_state:
+            st.session_state.upload_num =  0
+        if "messages" not in st.session_state.keys():
+            st.session_state.messages = [{"role": "assistant", "content": f'您好，个人用户{name}，我是小望，很高兴与您进行对话，\
+            我将尽我所能为您提供各种医学问答服务，您可以直接向我提问，也可以上传一些医学影响让我进行分析'}]
+
     
     def on(self):
         self.de = True
@@ -54,6 +84,12 @@ class JumpePage_debug_callback:
         if self.de:
             st.write('success')
         session_state.find_state = 'success'
+    def uploader_call_back(self, session_state):
+        # assert session_state.page_state == 'main', f'now is: {session_state.page_state}'
+        if self.de:
+            st.write('upload success')
+            st.write(session_state.upload_num)
+        session_state.upload_num += 1
 
 debug = JumpePage_debug_callback(de=False)
 
@@ -106,8 +142,23 @@ def find_key_page(session_state):
         session_state.page_state = 'main'
 
 def main():
-    st.markdown('# 望问医聊-v1.0')
-    st.image(logo, width=11, caption='望问医聊')
+    
+    st.markdown('# 望问医聊-v2.0')
+    c_1, c_2 = st.columns([1,9])
+    with c_1:
+        # if st.session_state.page_state is not None:
+        st.image(logo)
+    # st.markdown('<img src=\"./assets/logo.png\" style=\"zoom:90%\">')
+    with c_2:
+        # if st.session_state.page_state is not None:
+        st.markdown("**望问医聊：您的数字化家庭医生**")
+    # if st.session_state.find_state == 'success':
+    st.markdown("\
+        	这是望问医聊的公益模块的测试版本，语言核心由望问大模型的医疗引擎驱动\n\
+            望问拥有强大的图文推理、医学综合诊断、疑难病情的初步筛查能力\n\
+            对话内容由望问大模型自动生成，与大模型进行对话表明您已经明白[服务协议]\
+            (https://xn4zlkzg4p.feishu.cn/docx/BhtGdXUfpoqmgpxEEsgcJm5Wneh?from=from_copylink)\
+            ")
     
     if st.session_state.page_state is None:
         sd_select = st.sidebar.selectbox(
@@ -118,18 +169,19 @@ def main():
         st.sidebar.write("如果购买过我们的产品，请检查我们发送给您的动态密钥(token)，\
                 每个密钥24小时有效\n")
         sd_token = st.sidebar.text_input(
-            "请在这里放置你的望问医聊密钥",
+            "请在这里放置您的望问医聊密钥",
             placeholder='粘贴您的token'
         )
         cc1, cc2 = st.sidebar.columns(2)
         # with cc1:
         save_key = cc1.button('保存密钥')
         no_key = cc2.button("密钥丢失？")
+        
         if no_key:
             st.sidebar.write('您输入的信息可能未保存，是否跳转到新的页面？')
-            with st.sidebar.row():
-                c1 = st.sidebar.button('是', on_click=debug.yes_call_back, args=(st.session_state,))
-                c2 = st.sidebar.button('否', on_click=debug.no_call_back, args=(st.session_state,))
+            col1, col2 = st.sidebar.columns([1,3])
+            c1 = col1.button('是', on_click=debug.yes_call_back, args=(st.session_state,))
+            c2 = col2.button('否', on_click=debug.no_call_back, args=(st.session_state,))
             # col1, col2 = st.sidebar.columns(2)
             # with col1:
             #     c1 = st.sidebar.button('是', on_click=debug.yes_call_back, args=(st.session_state,))
@@ -139,14 +191,40 @@ def main():
                 st.session_state.page_state = 'find_key'
             if c2:
                 pass
-
+            
         if save_key:
-            st.write('密钥校验中...')
-            for i in range(int(1e8)):
-                i=i
+            if not sd_token:
+                st.sidebar.warning('请放置您的望问密钥', icon='⚠️')
+                
             st.write(f'校验通过！{sd_select}用户：{name}，欢迎使用望问医聊！')
+        assert st.session_state.upload_num >= 0
+
+        img_file = st.sidebar.file_uploader(
+            label="📁上传图像", type=['png','jpg'], accept_multiple_files=False,
+            )
+        
+        
+
+        if img_file is not None:
+        # if img_file is not None and 'upload_num' in st.session_state:
+            save_file_name = f'./upload_files/{get_name(st.session_state.upload_num, 8)}.png'
+            img_now = Image.open(img_file)
+            img_now.save(save_file_name)
+            assert img_now is not None
+            st.image(img_now, caption='what you uploaded')
+            # wait = st.sidebar.button('wait')
+            # if wait:
+                # pass
+            for i in range(int(1e7)):
+                pass
+        if img_file is not None:
+            chatbot(sd_token)
+
+
 
     if st.session_state.page_state == 'main':
+        # st.session_state.page_state = None
+        # st.empty()
         main_page()
     if st.session_state.page_state == 'find_key':
         find_key_page(st.session_state)
@@ -175,12 +253,74 @@ def main_page():
             c2 = st.sidebar.button('否', on_click=debug.no_call_back, args=(st.session_state,))
             if c1:
                 st.session_state.page_state = 'find_key'
-    
+    chatbot(sd_token)
     
 
+
+def chatbot(sd_token):
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.write(message["content"])
+        
+    if prompt := st.chat_input(disabled=(sd_token is None)):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.write(prompt)
+    
+    if st.session_state.messages[-1]["role"] != "assistant":
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking..."):
+                response = generate_response() 
+                st.write(response) 
+                
+        with st.chat_message("assistant"):
+            message_placeholder = st.empty()
+            full_response = ""
+            assistant_response = generate_response()
+            with st.spinner("Thinking..."):
+                time.sleep(random.randint(1,10) / 10)
+            # Simulate stream of response with milliseconds delay
+            for chunk in assistant_response:
+                full_response += chunk + " "
+                time.sleep(0.05)
+                # Add a blinking cursor to simulate typing
+                message_placeholder.markdown(full_response + "▌")
+            message_placeholder.markdown(full_response)
+            # Add assistant response to chat history
+        st.session_state.messages.append({"role": "assistant", "content": full_response})
+                
+                
+                
+                
+        message = {"role": "assistant", "content": response}
+    st.session_state.messages.append(message)
+
+
+def generate_response():
+    CLASS = '肺部CT影像'  # '心脏核磁共振表单'
+    RESULT = '......'
+    global i
+    i = 0
+    response = [
+        # 保存望问token后 
+    # f'您好，个人用户{name}，我是小望，很高兴与您进行对话，我将尽我所能为您提供各种医学问答服务，您可以直接向我提问，也可以上传一些医学影响让我进行分析',
+        # 上传一张医学影像
+    f'检测到您上传了一张{CLASS}，经过分析，f{RESULT}',
+        # 提问：肺部...
+    f'①...', 
+    f'②...',
+    f'③...',
+    f'④...'
+    ]
+    
+    while True:
+        yield response[i]
+        if i == len(response):
+            i = -1
+        i += 1
 
     
 if __name__ == '__main__':
-    # debug.on()
-    debug.off()
+    debug.on()
+    # debug.off()
     main()
