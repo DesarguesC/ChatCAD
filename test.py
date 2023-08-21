@@ -5,8 +5,8 @@ import time
 from streamlit.runtime.scriptrunner import add_script_run_ctx as ctx
 # from streamlit.runtime.scriptrunner.script_run_context import get_script_run_ctx
 import cv2
-from chat_bot import gpt_bot
-import nibabel as nib
+# from chat_bot import gpt_bot
+# import nibabel as nib
 from datetime import datetime
 from PIL import Image
 import random
