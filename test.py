@@ -14,7 +14,36 @@ import random
 global name, logo
 name = "desargues"
 logo = Image.open('./assets/logo.png')
-st.set_page_config(page_title="💬 望问医聊")
+st.set_page_config(page_title="💬 望问医聊", layout='wide')
+
+
+# video_html = """
+# 		<style>
+
+# 		#myVideo {
+# 		  position: fixed;
+# 		  right: 0;
+# 		  bottom: 0;
+# 		  min-width: 100%; 
+# 		  min-height: 100%;
+# 		}
+
+# 		.content {
+# 		  position: fixed;
+# 		  bottom: 0;
+# 		  background: rgba(0, 0, 0, 0.5);
+# 		  color: #f1f1f1;
+# 		  width: 100%;
+# 		  padding: 20px;
+# 		}
+
+# 		</style>	
+# 		<video controls>
+# 	<source type="video/mp4" src="/root/ChatCAD/assets/try.mp4:video/mp4;base64,AAAAHGZ0eXBtcDQyAAAAAG1wNDJpc29....../l/L+X8v5AAAAMgfDg==">
+# </video>
+#         """
+
+# st.markdown(video_html, unsafe_allow_html=True)
 
 
 def get_name(num: int, le: int) -> str:
@@ -156,8 +185,7 @@ def main():
     st.markdown("\
         	这是望问医聊的公益模块的测试版本，语言核心由望问大模型的医疗引擎驱动\n\
             望问拥有强大的图文推理、医学综合诊断、疑难病情的初步筛查能力\n\
-            对话内容由望问大模型自动生成，与大模型进行对话表明您已经明白[服务协议]\
-            (https://xn4zlkzg4p.feishu.cn/docx/BhtGdXUfpoqmgpxEEsgcJm5Wneh?from=from_copylink)\
+            对话内容由望问大模型自动生成，与大模型进行对话表明您已经明白[服务协议](https://xn4zlkzg4p.feishu.cn/docx/BhtGdXUfpoqmgpxEEsgcJm5Wneh?from=from_copylink)\
             ")
     
     if st.session_state.page_state is None:
@@ -211,7 +239,7 @@ def main():
             img_now = Image.open(img_file)
             img_now.save(save_file_name)
             assert img_now is not None
-            st.image(img_now, caption='what you uploaded')
+            st.sidebar.image(img_now, caption='what you uploaded')
             # wait = st.sidebar.button('wait')
             # if wait:
                 # pass
@@ -236,7 +264,6 @@ def main_page():
         '您准备使用什么身份访问望问医聊项目?',
         ('个人', '医疗企业/医院', '合作医院')
     )
-
     st.sidebar.write("如果购买过我们的产品，请检查我们发送给您的动态密钥(token)，\
             每个密钥24小时有效\n")
     sd_token = st.sidebar.text_input(
@@ -258,9 +285,9 @@ def main_page():
 
 
 def chatbot(sd_token):
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.write(message["content"])
+    # for message in st.session_state.messages:
+    #     with st.chat_message(message["role"]):
+    #         st.write(message["content"])
         
     if prompt := st.chat_input(disabled=(sd_token is None)):
         st.session_state.messages.append({"role": "user", "content": prompt})
@@ -268,32 +295,32 @@ def chatbot(sd_token):
             st.write(prompt)
     
     if st.session_state.messages[-1]["role"] != "assistant":
-        with st.chat_message("assistant"):
-            with st.spinner("Thinking..."):
-                response = generate_response() 
-                st.write(response) 
+        # with st.chat_message("assistant"):
+        #     with st.spinner("Thinking..."):
+        #         response = generate_response() 
+        #         st.write(response) 
                 
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
             full_response = ""
-            assistant_response = generate_response()
-            with st.spinner("Thinking..."):
+            gen = generate_response()
+            assistant_response = next(gen)
+            
+            with st.spinner("数据查询中..."):
                 time.sleep(random.randint(1,10) / 10)
             # Simulate stream of response with milliseconds delay
+            
+            # for assistant_
             for chunk in assistant_response:
                 full_response += chunk + " "
-                time.sleep(0.05)
+                time.sleep(random.randint(5,15) / 100)
                 # Add a blinking cursor to simulate typing
                 message_placeholder.markdown(full_response + "▌")
             message_placeholder.markdown(full_response)
             # Add assistant response to chat history
         st.session_state.messages.append({"role": "assistant", "content": full_response})
-                
-                
-                
-                
-        message = {"role": "assistant", "content": response}
-    st.session_state.messages.append(message)
+        # message = {"role": "assistant", "content": response}
+        # st.session_state.messages.append(message)
 
 
 def generate_response():
@@ -305,7 +332,7 @@ def generate_response():
         # 保存望问token后 
     # f'您好，个人用户{name}，我是小望，很高兴与您进行对话，我将尽我所能为您提供各种医学问答服务，您可以直接向我提问，也可以上传一些医学影响让我进行分析',
         # 上传一张医学影像
-    f'检测到您上传了一张{CLASS}，经过分析，f{RESULT}',
+    f'检测到您上传了一张{CLASS}，经过初步分析，f{RESULT}，您可以针对该影像进行更具体的提问，小望将针对您的问题做出更加细致的回答',
         # 提问：肺部...
     f'①...', 
     f'②...',
@@ -321,6 +348,6 @@ def generate_response():
 
     
 if __name__ == '__main__':
-    debug.on()
-    # debug.off()
+    # debug.on()
+    debug.off()
     main()
