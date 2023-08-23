@@ -4,18 +4,33 @@ import threading
 import time
 from streamlit.runtime.scriptrunner import add_script_run_ctx as ctx
 # from streamlit.runtime.scriptrunner.script_run_context import get_script_run_ctx
-import cv2
+# import cv2
 # from chat_bot import gpt_bot
 # import nibabel as nib
 from datetime import datetime
 from PIL import Image
 import random
 
-global name, logo
+global name, logo, user, CLASS, RESULT, i
+i = 0
 name = "desargues"
 logo = Image.open('./assets/logo.png')
+user = Image.open('./assets/user.png')
+CLASS = '肺部CT影像'  # '心脏核磁共振表单'
+RESULT = '......'
 st.set_page_config(page_title="💬 望问医聊", layout='wide')
 
+response = [
+        # 保存望问token后 
+    f'您好，个人用户{name}，我是小望，很高兴与您进行对话，我将尽我所能为您提供各种医学问答服务，您可以直接向我提问，也可以上传一些医学影响让我进行分析',
+        # 上传一张医学影像
+    f'检测到您上传了一张{CLASS}，经过初步分析，f{RESULT}，您可以针对该影像进行更具体的提问，小望将针对您的问题做出更加细致的回答',
+        # 提问：肺部...
+    f'①...', 
+    f'②...',
+    f'③...',
+    f'④...'
+    ]
 
 # video_html = """
 # 		<style>
@@ -57,13 +72,14 @@ def get_name(num: int, le: int) -> str:
         f += 1
     assert f >= 0
     
-    return '0' * f + str(num)
+    return '0' * (le-f) + str(num)
 
 def save_img(img_file, name):
     if not os.path.exists('./upload_files'):
         os.mkdir('./upload_files/')
     img = Image.open(img_file)
-    img.save(name)
+    img.save(name, quality=95)
+    return img
     
     
 
@@ -77,10 +93,19 @@ class JumpePage_debug_callback:
             st.session_state.find_state = None
         if 'upload_num' not in st.session_state:
             st.session_state.upload_num =  0
+        if 'uploader_dis' not in st.session_state:
+            st.session_state.uploader_dis = True
         if "messages" not in st.session_state.keys():
-            st.session_state.messages = [{"role": "assistant", "content": f'您好，个人用户{name}，我是小望，很高兴与您进行对话，\
-            我将尽我所能为您提供各种医学问答服务，您可以直接向我提问，也可以上传一些医学影响让我进行分析'}]
-
+            # st.session_state.messages = [{"role": "assistant", "content": f'您好，个人用户{name}，我是小望，很高兴与您进行对话'}]
+            st.session_state.messages = []
+        if "img_list" not in st.session_state.keys():
+            st.session_state.img_list = [None]
+        if "first_chat" not in st.session_state.keys():
+            st.session_state.first_chat = True
+        if "uploaded_img" not in st.session_state.keys():
+            st.session_state.uploaded_img = None
+        if "m_cnt" not in st.session_state.keys():
+            st.session_state.m_cnt = 0
     
     def on(self):
         self.de = True
@@ -169,6 +194,7 @@ def find_key_page(session_state):
         st.write('')
     if back:
         session_state.page_state = 'main'
+        pass
 
 def main():
     
@@ -219,36 +245,24 @@ def main():
                 st.session_state.page_state = 'find_key'
             if c2:
                 pass
-            
+        
+        
         if save_key:
             if not sd_token:
                 st.sidebar.warning('请放置您的望问密钥', icon='⚠️')
-                
-            st.write(f'校验通过！{sd_select}用户：{name}，欢迎使用望问医聊！')
+            else:
+                st.write(f'校验通过！{sd_select}用户：{name}，欢迎使用望问医聊！')
+                st.session_state.uploader_dis = False
+                st.session_state.page_state = 'chat'
+                # if st.session_state.page_state == 'chat':
+                    # chatbot()
+                        
+
         assert st.session_state.upload_num >= 0
-
-        img_file = st.sidebar.file_uploader(
-            label="📁上传图像", type=['png','jpg'], accept_multiple_files=False,
-            )
-        
-        
-
-        if img_file is not None:
-        # if img_file is not None and 'upload_num' in st.session_state:
-            save_file_name = f'./upload_files/{get_name(st.session_state.upload_num, 8)}.png'
-            img_now = Image.open(img_file)
-            img_now.save(save_file_name)
-            assert img_now is not None
-            st.sidebar.image(img_now, caption='what you uploaded')
-            # wait = st.sidebar.button('wait')
-            # if wait:
-                # pass
-            for i in range(int(1e7)):
-                pass
-        if img_file is not None:
-            chatbot(sd_token)
-
-
+    
+    if st.session_state.page_state == 'chat':
+        chat_messages = generate_response()
+        chatbot(chat_messages)
 
     if st.session_state.page_state == 'main':
         # st.session_state.page_state = None
@@ -256,6 +270,86 @@ def main():
         main_page()
     if st.session_state.page_state == 'find_key':
         find_key_page(st.session_state)
+    
+
+
+
+def chatbot(gen):
+    # for message in st.session_state.messages:
+    #     with st.chat_message(message["role"], avatar= logo if message['role']=='assistant' else user):
+    #         if isinstance(message["content"], str):
+    #             st.markdown(message["content"])
+    #         else:
+    #             # st.markdown('<img src=\"./assets/logo.png\" style=\"zoom:90%\">')
+    #             assert "path" in message
+    #             st.markdown(f'<img src="{message["path"]}">')
+
+
+
+    img_file = st.sidebar.file_uploader(label="📁上传图像进行医疗影像、数据咨询", type=['png','jpg'], on_change=debug.uploader_call_back, 
+                                        args=(st.session_state,), accept_multiple_files=False, disabled=False)  
+    # if img_file := st.sidebar.file_uploader(label="📁上传图像进行医疗影像、数据咨询", type=['png','jpg'], on_change=debug.uploader_call_back, 
+                                        # args=(st.session_state,), accept_multiple_files=False, disabled=False) is not None:
+    if img_file is not None:                         
+        # if img_file is not None and 'upload_num' in st.session_state:
+        save_file_name = f'./upload_files/{get_name(st.session_state.upload_num, 8)}.png'
+        img_now = save_img(img_file, save_file_name)
+        assert img_now is not None
+        st.sidebar.image(img_now, caption='已上传的图片')
+        st.session_state.messages.append({"role": "user", "content": img_now, "path":save_file_name})
+        with st.chat_message("user", avatar=user):
+            st.image(img_now)
+
+    if prompt := st.chat_input():
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user", avatar=user):
+            st.write(prompt)        
+             
+    
+    if (not st.session_state.first_chat and st.session_state.messages[-1]["role"] != "assistant") or img_file is not None or st.session_state.first_chat:
+        st.session_state.first_chat = False   
+        assistant_response = response[st.session_state.m_cnt]
+        st.session_state.m_cnt = 0 if st.session_state.m_cnt == len(response)-1 else (st.session_state.m_cnt + 1)
+        # st.sidebar.write(assistant_response)
+        with st.chat_message(name = "assistant", avatar=logo):
+            message_placeholder = st.empty()
+            full_response = ""
+            with st.spinner("数据查询中..."):
+                time.sleep(random.randint(5,10) / 10)
+            # Simulate stream of response with milliseconds delay
+
+            for chunk in assistant_response:
+                full_response += chunk + " "
+                time.sleep(random.randint(0,9) / 100)
+                # Add a blinking cursor to simulate typing
+                message_placeholder.markdown(full_response + "▌")
+            message_placeholder.markdown(full_response)
+            # Add assistant response to chat history
+        st.session_state.messages.append({"role": "assistant", "content": full_response})
+
+        # st.session_state.messages.append(message)
+
+
+
+def generate_response():
+    i = 0
+    response = [
+        # 保存望问token后 
+    f'您好，个人用户{name}，我是小望，很高兴与您进行对话，我将尽我所能为您提供各种医学问答服务，您可以直接向我提问，也可以上传一些医学影响让我进行分析',
+        # 上传一张医学影像
+    f'检测到您上传了一张{CLASS}，经过初步分析，f{RESULT}，您可以针对该影像进行更具体的提问，小望将针对您的问题做出更加细致的回答',
+        # 提问：肺部...
+    f'①...', 
+    f'②...',
+    f'③...',
+    f'④...'
+    ]
+    while True:
+        yield response[i]
+        if i == len(response):
+            i = -1
+        i += 1
+
     
 
     
@@ -280,74 +374,10 @@ def main_page():
             c2 = st.sidebar.button('否', on_click=debug.no_call_back, args=(st.session_state,))
             if c1:
                 st.session_state.page_state = 'find_key'
-    chatbot(sd_token)
+    # chatbot(sd_token, img_file)
     
 
-
-def chatbot(sd_token):
-    # for message in st.session_state.messages:
-    #     with st.chat_message(message["role"]):
-    #         st.write(message["content"])
-        
-    if prompt := st.chat_input(disabled=(sd_token is None)):
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.write(prompt)
-    
-    if st.session_state.messages[-1]["role"] != "assistant":
-        # with st.chat_message("assistant"):
-        #     with st.spinner("Thinking..."):
-        #         response = generate_response() 
-        #         st.write(response) 
-                
-        with st.chat_message("assistant"):
-            message_placeholder = st.empty()
-            full_response = ""
-            gen = generate_response()
-            assistant_response = next(gen)
-            
-            with st.spinner("数据查询中..."):
-                time.sleep(random.randint(1,10) / 10)
-            # Simulate stream of response with milliseconds delay
-            
-            # for assistant_
-            for chunk in assistant_response:
-                full_response += chunk + " "
-                time.sleep(random.randint(5,15) / 100)
-                # Add a blinking cursor to simulate typing
-                message_placeholder.markdown(full_response + "▌")
-            message_placeholder.markdown(full_response)
-            # Add assistant response to chat history
-        st.session_state.messages.append({"role": "assistant", "content": full_response})
-        # message = {"role": "assistant", "content": response}
-        # st.session_state.messages.append(message)
-
-
-def generate_response():
-    CLASS = '肺部CT影像'  # '心脏核磁共振表单'
-    RESULT = '......'
-    global i
-    i = 0
-    response = [
-        # 保存望问token后 
-    # f'您好，个人用户{name}，我是小望，很高兴与您进行对话，我将尽我所能为您提供各种医学问答服务，您可以直接向我提问，也可以上传一些医学影响让我进行分析',
-        # 上传一张医学影像
-    f'检测到您上传了一张{CLASS}，经过初步分析，f{RESULT}，您可以针对该影像进行更具体的提问，小望将针对您的问题做出更加细致的回答',
-        # 提问：肺部...
-    f'①...', 
-    f'②...',
-    f'③...',
-    f'④...'
-    ]
-    
-    while True:
-        yield response[i]
-        if i == len(response):
-            i = -1
-        i += 1
-
-    
 if __name__ == '__main__':
-    # debug.on()
-    debug.off()
+    debug.on()
+    # debug.off()
     main()
