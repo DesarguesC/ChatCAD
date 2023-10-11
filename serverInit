@@ -1,0 +1,31 @@
+export CUDA_LAUNCH_BLOCKING=1
+export TORCH_USE_CUDA_DSA=1
+conda activate CAD
+cd ChatCAD
+source /etc/network_turbo
+pip uninstall gradio
+pip install gradio -i https://pypi.tuna.tsinghua.edu.cn/simple/
+pip install -U transformers
+pip install sentencepiece
+sudo screen python web.py
+
+# then start link autodl with your vultr server
+# In vultr:
+
+
+sudo screen ssh -p 44824 root@region-46.seetacloud.com -L127.0.0.1:4900:127.0.0.1:4900
+
+# or
+
+ssh -p 44824 root@region-46.seetacloud.com -Llocalhost:4900:127.0.0.1:4900
+
+# and paste your password for ssh login, restart caddy server
+
+8Ku/g7wUU+
+
+sudo ./caddy stop
+sudo screen ./caddu run
+
+
+
+sudo unset http_proxy && sudo unset https_proxy
