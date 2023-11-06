@@ -5,6 +5,12 @@ __pycache__/
 *.tmp
 *.mp4
 
+*.txt
+*.docx
+*.pptx
+*.ppt
+
+
 
 # C extensions
 *.so
