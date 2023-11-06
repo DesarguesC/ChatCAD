@@ -24,51 +24,9 @@ up = True
 name = "desargues"
 logo = Image.open('./assets/logo.png')
 user = Image.open('./assets/user.png')
-CLASS = '肺部CT影像'  # '心脏核磁共振表单'
-RESULT = "小望观察到正位x线片显示右肺上叶节段性塌陷。尤其需要注意的是小裂和右肺门抬高，纵隔向右轻微移位；同时有粘液栓被识别到，存在低密度影灶，部分充盈缺损\
-    这很有可能是一位有哮喘的病人，但也不能排除是肺炎引起的可能。"
 st.set_page_config(page_title="💬 望问医聊", layout='wide')
 
 
-HOW = "哮喘是一种慢性气道疾病，通常表现为气道的炎症和痉挛，导致呼吸困难、喘息和咳嗽。\
-        如果这是您自己的胸片CT影像，请记得及时去医院就诊，服用相关药物。治疗哮喘的药物可以分为两大类：控制性药物和急性发作时使用的缓解性药物。\
-            以下是一些适合您病症的药物清单：\
-        \n①-控制性药物：\n\t1.吸入型类固醇（ICS）： 这是哮喘治疗的主要药物，用于减轻气道炎症和防止哮喘发作。常见的ICS药物包括氟替卡松、布地奈德等。\
-            \n\t2.长效β2受体激动剂（LABA）： 通常与ICS联合使用，帮助扩张气道，减轻痉挛。常见的LABA药物包括沙丁胺醇、福莫特罗等。\
-            \n\t3.长效抗胆碱能药物（LAMA）： 也可以用于扩张气道，有时与ICS或LABA合用。例如，噻托溴铵是一种常见的LAMA药物。\
-            \n\t4.联合制剂： 一些药物将ICS和LABA合并在一个吸入器中，以便于患者使用。例如，沙美特罗/氟替卡松是一种常见的联合制剂。\
-        \n②-缓解性药物：\n\t短效β2受体激动剂（SABA）： 这是急性哮喘发作时的常用药物，通过扩张气道，快速缓解症状。常见的SABA药物包括沙丁胺醇、特布他林等。\
-        \n请注意，每个人的哮喘情况可能不同，药物的选择和剂量应该由医生根据患者的病情和需要进行个性化的调整。\
-        同时，由于哮喘治疗药物为处方药需要由医生开具处方，由专业医生根据具体情况制定合适的治疗方案。另外，与小望聊天并不能待替直接就医\
-            ,请不要自行服用药物，以免影响治疗效果和产生药物反映"
-
-response = [
-        # 保存望问token后 
-    f'您好，个人用户{name}，我是小望，很高兴与您进行对话，我将尽我所能为您提供各种医学问答服务，您可以直接向我提问，也可以上传一些医学影像让我进行分析。',
-        # 上传一张医学影像
-    '检测到您上传了一张'+CLASS + '，经过初步分析，' + RESULT + '\n您可以针对该影像进行更具体的提问，小望将针对您的问题做出更加细致的回答。',
-        # 提问：我确实患有哮喘病，当前哮喘是否有加重的倾向？
-    '首先，' + HOW + '。根据当前的信息，小望并不能断定您的哮喘是否有加重的倾向，但是请您依次回答以下问题，以便小望进行分析：\
-            \n1.平日里出现呼吸困难、喘息的频率是否有增加？\n2.夜间是否有因为突然咳嗽而苏醒的状况？',
-        # 回答： 1.是   2.无
-    '您最近咳嗽时是否为干咳没有痰，且伴有嗓子干痒、恶心、干呕？',
-        # 回答：干咳，偶尔有恶心的感觉，
-    '您是否会感到胸痛，不时伴有晕厥、烦躁不安、心悸、惊恐等感受？',
-        # 回答：偶尔胸痛，有烦躁不安
-    '您的哮喘症状可能有加重的趋势，同时结合您上传的影像可能是肺栓塞出现的征兆，这是比较严重的，根据数据库数据查询，您患有或将出现肺栓塞症状的概率高于80%.\
-        \n当然，小望也有可能有犯错的时候，因此为了您的健康，请您务必尽快到附近的医院就诊，\
-        您可以提供您的位置信息，由小望综合医疗资源和门诊挂号余量查询最近的诊疗，推荐较好的就诊选择',
-        # 浙江省杭州市钱塘新区，二号大街
-    '您好，为您查询到<浙大邵逸夫医院钱塘院区>，已经通过平台预留手机号 15958152006 关联到您在<浙大邵逸夫医院钱塘院区>的就诊信息，\
-        查询到截至当前时间 [2023-08-24 | 10:11]，最近的有余量呼吸内科门诊时间为 【8月29日 周二】下午，余量为【3】个：\n【15：57 \
-            - 22号】余量1个，【16：04 - 23号】余量1个，【16：18 - 25号】余量1个。\
-        \n查询到的医生信息为： \n【 周勇 | 主任医师 】\n您可以选择合适的时段确认，由小望进行一键预约，或者更换其他时段、医师的门诊。',
-        # 请预约16：18的门诊 
-    '您将预约的门诊信息为：\n<浙大邵逸夫医院钱塘院区> ---【16：18 - 25号】余量1个，坐诊医生【 周勇 | 主任医师】\n请确认以上预约信息',
-        # 确认
-    '好的，小望已经成功为您预约：<浙大邵逸夫医院钱塘院区> ---【16：18 - 25号】余量1个，坐诊医生【 周勇 | 主任医师】\n稍后您将会收到医院发来的成功预约短信，\
-        请及时查收。感谢您使用望问医疗！'
-    ]
 
 # video_html = """
 # 		<style>
@@ -97,6 +55,9 @@ response = [
 #         """
 
 # st.markdown(video_html, unsafe_allow_html=True)
+
+
+
 
 
 
@@ -312,7 +273,7 @@ def main():
         assert st.session_state.upload_num >= 0
     
     if st.session_state.page_state == 'chat':
-        chat_messages = generate_response()
+        # chat_messages = generate_response()
         chatbot(st.session_state.first_chat)
 
     if st.session_state.page_state == 'main':
@@ -369,13 +330,13 @@ def chatbot(flag):
         st.session_state.first_chat = False
         print(prompt)
         
-        # st.session_state.m_cnt = 0 if st.session_state.m_cnt == len(response)-1 else (st.session_state.m_cnt + 1)
+        st.session_state.m_cnt = 0 if st.session_state.m_cnt == len(response)-1 else (st.session_state.m_cnt + 1)
         # st.sidebar.write(assistant_response)
         with st.chat_message(name = "assistant", avatar=logo):
             message_placeholder = st.empty()
             full_response = ""
             with st.spinner("请求中..."):
-                assistant_response = response[st.session_state.m_cnt] if st.session_state.m_cnt <= 1 else st.session_state.agent.ask(prompt)
+                assistant_response = response[st.session_state.m_cnt] # if st.session_state.m_cnt <= 1 else st.session_state.agent.ask(prompt)
                 st.session_state.m_cnt += 1
             # Simulate stream of response with milliseconds delay
 
@@ -392,24 +353,24 @@ def chatbot(flag):
 
 
 
-def generate_response():
-    i = 0
-    response = [
-        # 保存望问token后 
-    f'您好，个人用户{name}，我是小望，很高兴与您进行对话，我将尽我所能为您提供各种医学问答服务，您可以直接向我提问，也可以上传一些医学影响让我进行分析',
-        # 上传一张医学影像
-    f'检测到您上传了一张{CLASS}，经过初步分析，f{RESULT}，您可以针对该影像进行更具体的提问，小望将针对您的问题做出更加细致的回答',
-        # 提问：肺部...
-    f'①...', 
-    f'②...',
-    f'③...',
-    f'④...'
-    ]
-    while True:
-        yield response[i]
-        if i == len(response):
-            i = -1
-        i += 1
+# def generate_response():
+#     i = 0
+#     response = [
+#         # 保存望问token后 
+#     f'您好，个人用户{name}，我是小望，很高兴与您进行对话，我将尽我所能为您提供各种医学问答服务，您可以直接向我提问，也可以上传一些医学影响让我进行分析',
+#         # 上传一张医学影像
+#     f'检测到您上传了一张{CLASS}，经过初步分析，f{RESULT}，您可以针对该影像进行更具体的提问，小望将针对您的问题做出更加细致的回答',
+#         # 提问：肺部...
+#     f'①...', 
+#     f'②...',
+#     f'③...',
+#     f'④...'
+#     ]
+#     while True:
+#         yield response[i]
+#         if i == len(response):
+#             i = -1
+#         i += 1
 
     
 
