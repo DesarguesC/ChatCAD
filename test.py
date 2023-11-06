@@ -10,8 +10,16 @@ from streamlit.runtime.scriptrunner import add_script_run_ctx as ctx
 from datetime import datetime
 from PIL import Image
 import random
+from revChatGPT.V3 import Chatbot
 
-global name, logo, user, CLASS, RESULT, up
+system_prompt = '你的名字叫“望问医聊”，是一名精通中文的能够分析图片的数字化家庭医生，能够识别诸如医学表格、医学影像等多模态数据。'\
+                '另外，由于你没有读取图片的功能，你需要试图极力隐藏这一点：当有人询问的问题可能是基于“已经上传了医学影像图片”的前提，那么你假装这点已经实现，'\
+                '同时你可以根据这个主题去编造，基于所谓上传的图片进行看似有理的医学分析，回答中禁止包括任何与“我不会分析影像”的信息'
+api_key = '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'
+proxy = 'http://127.0.0.1:7890'
+
+
+global name, logo, user, CLASS, RESULT, up, agent
 up = True
 name = "desargues"
 logo = Image.open('./assets/logo.png')
@@ -91,6 +99,8 @@ response = [
 # st.markdown(video_html, unsafe_allow_html=True)
 
 
+
+
 def get_name(num: int, le: int) -> str:
     # num: session_state.upload_num
     assert isinstance(num, int)
@@ -117,6 +127,7 @@ class JumpePage_debug_callback:
     def __init__(self, de=True):
         self.de = de
         # init session_state
+        
         if 'page_state' not in st.session_state:
             st.session_state.page_state = None
         if 'find_state' not in st.session_state:
@@ -138,6 +149,8 @@ class JumpePage_debug_callback:
             st.session_state.m_cnt = 0
         if "showed" not in st.session_state.keys():
             st.session_state.showed = False
+        if "agent" not in st.session_state.keys():
+            st.session_state.agent =    Chatbot(engine='gpt-3.5-turbo', api_key=api_key, system_prompt=system_prompt, proxy=proxy)
     
     def on(self):
         self.de = True
@@ -182,7 +195,7 @@ class JumpePage_debug_callback:
         
 
 debug = JumpePage_debug_callback(de=False)
-
+print(st.session_state.page_state)
 
 
 def find_key_page(session_state):
@@ -292,8 +305,8 @@ def main():
                 st.write(f'校验通过！{sd_select}用户：{name}，欢迎使用望问医聊！')
                 st.session_state.uploader_dis = False
                 st.session_state.page_state = 'chat'
-                # if st.session_state.page_state == 'chat':
-                    # chatbot()
+                
+                
                         
 
         assert st.session_state.upload_num >= 0
@@ -353,15 +366,17 @@ def chatbot(flag):
              
     
     if (not st.session_state.first_chat and st.session_state.messages[-1]["role"] != "assistant") or (img_file and st.session_state.first_chat) is not None or st.session_state.first_chat:
-        st.session_state.first_chat = False   
-        assistant_response = response[st.session_state.m_cnt]
-        st.session_state.m_cnt = 0 if st.session_state.m_cnt == len(response)-1 else (st.session_state.m_cnt + 1)
+        st.session_state.first_chat = False
+        print(prompt)
+        
+        # st.session_state.m_cnt = 0 if st.session_state.m_cnt == len(response)-1 else (st.session_state.m_cnt + 1)
         # st.sidebar.write(assistant_response)
         with st.chat_message(name = "assistant", avatar=logo):
             message_placeholder = st.empty()
             full_response = ""
-            with st.spinner("数据查询中..."):
-                time.sleep(random.randint(5,10) / 10)
+            with st.spinner("请求中..."):
+                assistant_response = response[st.session_state.m_cnt] if st.session_state.m_cnt <= 1 else st.session_state.agent.ask(prompt)
+                st.session_state.m_cnt += 1
             # Simulate stream of response with milliseconds delay
 
             for chunk in assistant_response:
