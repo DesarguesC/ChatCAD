@@ -20,15 +20,30 @@ api_key = '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'
 proxy = 'http://127.0.0.1:7890'
 
 
-global name, logo, user, up, agent, response
+global name, logo, user, up, response
 up = True
 name = "desargues"
-logo = Image.open('./assets/logo.png')
+logo = Image.open('./assets/logo1.png')
+# w, h = logo.size
+# logo = logo.resize((w//2,h//2))
+
 user = Image.open('./assets/user.png')
 st.set_page_config(page_title="💬 望问医聊", layout='wide')
 
+# choices = {
+#     'ori': ori,
+#     '对话演示1': yanshi1,
+#     '对话演示2': yanshi2,
+#     '对话演示3': yanshi3,
+#     '日常问询': richang,
+#     '医生诊中': zhenzhongYi,
+#     '患者诊中': zhenzhongHuan,
+#     '随便问的': suibianwen,
+#     '诊后乱问': zhenhou
+# }
 
-response = choice('yanshi1')
+
+response = choice('诊后乱问')
 
 # video_html = """
 # 		<style>
@@ -112,8 +127,9 @@ class JumpePage_debug_callback:
             st.session_state.m_cnt = 0
         if "showed" not in st.session_state.keys():
             st.session_state.showed = False
-        if "agent" not in st.session_state.keys():
-            st.session_state.agent =    Chatbot(engine='gpt-3.5-turbo', api_key=api_key, system_prompt=system_prompt, proxy=proxy)
+        # if "agent" not in st.session_state.keys():
+            # st.session_state.agent =    Chatbot(engine='gpt-3.5-turbo', api_key=api_key, system_prompt=system_prompt, proxy=proxy)
+
     
     def on(self):
         self.de = True
@@ -242,10 +258,10 @@ def main():
         cc1, cc2 = st.sidebar.columns(2)
         # with cc1:
         save_key = cc1.button('保存密钥')
-        no_key = cc2.button("密钥丢失？")
+        no_key = cc2.button("密钥丢失")
         
         if no_key:
-            st.sidebar.write('您输入的信息可能未保存，是否跳转到新的页面？')
+            st.sidebar.write('您输入的信息可能未保存，是否跳转到新的页面')
             col1, col2 = st.sidebar.columns([1,3])
             c1 = col1.button('是', on_click=debug.yes_call_back, args=(st.session_state,))
             c2 = col2.button('否', on_click=debug.no_call_back, args=(st.session_state,))
@@ -322,17 +338,17 @@ def chatbot(flag):
         # global up
         st.session_state.showed = True
 
-    if prompt := st.chat_input():
+    if prompt := st.chat_input(placeholder='任何问题都可以咨询小望~'):
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user", avatar=user):
-            st.write(prompt)        
-             
+            st.write(prompt)           
     
     if (not st.session_state.first_chat and st.session_state.messages[-1]["role"] != "assistant") or (img_file and st.session_state.first_chat) is not None or st.session_state.first_chat:
         st.session_state.first_chat = False
         print(prompt)
-        
-        st.session_state.m_cnt = 0 if st.session_state.m_cnt == len(response)-1 else (st.session_state.m_cnt + 1)
+        # if st.session_state.m_cnt == len(response)-1:
+            # st.session_state.m_cnt = 0
+        # st.session_state.m_cnt = 0 if st.session_state.m_cnt == len(response)-1 else (st.session_state.m_cnt + 1)
         # st.sidebar.write(assistant_response)
         with st.chat_message(name = "assistant", avatar=logo):
             message_placeholder = st.empty()
@@ -354,29 +370,6 @@ def chatbot(flag):
 
         # st.session_state.messages.append(message)
 
-
-
-# def generate_response():
-#     i = 0
-#     response = [
-#         # 保存望问token后 
-#     f'您好，个人用户{name}，我是小望，很高兴与您进行对话，我将尽我所能为您提供各种医学问答服务，您可以直接向我提问，也可以上传一些医学影响让我进行分析',
-#         # 上传一张医学影像
-#     f'检测到您上传了一张{CLASS}，经过初步分析，f{RESULT}，您可以针对该影像进行更具体的提问，小望将针对您的问题做出更加细致的回答',
-#         # 提问：肺部...
-#     f'①...', 
-#     f'②...',
-#     f'③...',
-#     f'④...'
-#     ]
-#     while True:
-#         yield response[i]
-#         if i == len(response):
-#             i = -1
-#         i += 1
-
-    
-
     
 def main_page():
     sd_select = st.sidebar.selectbox(
@@ -389,9 +382,9 @@ def main_page():
         "请在这里放置你的望问医聊密钥",
         placeholder='粘贴您的token'
     )
-    no_key = st.sidebar.button("密钥丢失？")
+    no_key = st.sidebar.button("密钥丢失")
     if no_key:
-        st.sidebar.write('您输入的信息可能未保存，是否跳转到新的页面？')
+        st.sidebar.write('您输入的信息可能未保存，是否跳转到新的页面')
         col1, col2 = st.sidebar.columns(2)
         with col1:
             c1 = st.sidebar.button('是', on_click=debug.yes_call_back, args=(st.session_state,))
