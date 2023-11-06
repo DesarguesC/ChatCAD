@@ -10,6 +10,7 @@ from streamlit.runtime.scriptrunner import add_script_run_ctx as ctx
 from datetime import datetime
 from PIL import Image
 import random
+from prompt.prompt import HOW, RESULT, CLASS, choice
 from revChatGPT.V3 import Chatbot
 
 system_prompt = '你的名字叫“望问医聊”，是一名精通中文的能够分析图片的数字化家庭医生，能够识别诸如医学表格、医学影像等多模态数据。'\
@@ -19,7 +20,7 @@ api_key = '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'
 proxy = 'http://127.0.0.1:7890'
 
 
-global name, logo, user, CLASS, RESULT, up, agent
+global name, logo, user, up, agent, response
 up = True
 name = "desargues"
 logo = Image.open('./assets/logo.png')
@@ -27,6 +28,7 @@ user = Image.open('./assets/user.png')
 st.set_page_config(page_title="💬 望问医聊", layout='wide')
 
 
+response = choice('yanshi1')
 
 # video_html = """
 # 		<style>
@@ -336,6 +338,7 @@ def chatbot(flag):
             message_placeholder = st.empty()
             full_response = ""
             with st.spinner("请求中..."):
+                time.sleep(random.randint(13,40) / 100)
                 assistant_response = response[st.session_state.m_cnt] # if st.session_state.m_cnt <= 1 else st.session_state.agent.ask(prompt)
                 st.session_state.m_cnt += 1
             # Simulate stream of response with milliseconds delay
