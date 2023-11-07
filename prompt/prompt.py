@@ -9,7 +9,10 @@ choices = {
     '医生诊中': zhenzhongYi,
     '患者诊中': zhenzhongHuan,
     '随便问的': suibianwen,
-    '诊后乱问': zhenhou
+    '诊后乱问': zhenhou,
+    '排队时候': paidui,
+    '排队挂号': guahao,
+    '预约提醒': tixing
 }
 
 def choice(x: str):
