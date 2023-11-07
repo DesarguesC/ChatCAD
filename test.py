@@ -40,11 +40,16 @@ st.set_page_config(page_title="💬 望问医聊", layout='wide')
 #     '患者诊中': zhenzhongHuan,
 #     '随便问的': suibianwen,
 #     '诊后乱问': zhenhou,
-#     '排队时候': paidui
+#     '排队时候': paidui,
+#     '排队挂号': guahao,
+#     '预约提醒': tixing,
+#     '体检体检': tijian,
+#     '住院住院': zhuyuan,
+#     '医生来问': yisheng
 # }
 
 
-response = choice('诊后乱问')
+response = choice('医生来问')
 
 # video_html = """
 # 		<style>
