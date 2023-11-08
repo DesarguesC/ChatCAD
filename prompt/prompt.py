@@ -15,7 +15,9 @@ choices = {
     '预约提醒': tixing,
     '体检体检': tijian,
     '住院住院': zhuyuan,
-    '医生来问': yisheng
+    '医生来问': yisheng,
+    '该吃药了': chiyao,
+    '报告生成': baogao
 }
 
 def choice(x: str):

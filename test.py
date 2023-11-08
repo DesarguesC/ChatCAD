@@ -45,11 +45,13 @@ st.set_page_config(page_title="💬 望问医聊", layout='wide')
 #     '预约提醒': tixing,
 #     '体检体检': tijian,
 #     '住院住院': zhuyuan,
-#     '医生来问': yisheng
+#     '医生来问': yisheng,
+#     '该吃药了': chiyao,
+#     '报告生成': baogao
 # }
 
 
-response = choice('医生来问')
+response = choice('报告生成')
 
 # video_html = """
 # 		<style>
