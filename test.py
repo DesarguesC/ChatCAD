@@ -47,11 +47,12 @@ st.set_page_config(page_title="💬 望问医聊", layout='wide')
 #     '住院住院': zhuyuan,
 #     '医生来问': yisheng,
 #     '该吃药了': chiyao,
-#     '报告生成': baogao
+#     '报告生成': baogao,
+#     '多模态问': yanshi1
 # }
 
 
-response = choice('报告生成')
+response = choice('多模态问')
 
 # video_html = """
 # 		<style>
@@ -362,7 +363,7 @@ def chatbot(flag):
             message_placeholder = st.empty()
             full_response = ""
             with st.spinner("请求中..."):
-                time.sleep(random.randint(13,40) / 100)
+                time.sleep(random.randint(130,400) / 100)
                 assistant_response = response[st.session_state.m_cnt] # if st.session_state.m_cnt <= 1 else st.session_state.agent.ask(prompt)
                 st.session_state.m_cnt += 1
             # Simulate stream of response with milliseconds delay

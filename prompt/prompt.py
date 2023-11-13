@@ -17,7 +17,8 @@ choices = {
     '住院住院': zhuyuan,
     '医生来问': yisheng,
     '该吃药了': chiyao,
-    '报告生成': baogao
+    '报告生成': baogao,
+    '多模态问': yanshi1
 }
 
 def choice(x: str):
