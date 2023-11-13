@@ -48,11 +48,13 @@ st.set_page_config(page_title="💬 望问医聊", layout='wide')
 #     '医生来问': yisheng,
 #     '该吃药了': chiyao,
 #     '报告生成': baogao,
-#     '多模态问': yanshi1
+#     '多模态问': yanshi1,
+#     '看个牙片': yapian
 # }
 
 
-response = choice('多模态问')
+
+response = choice('看个牙片')
 
 # video_html = """
 # 		<style>
