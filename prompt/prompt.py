@@ -20,13 +20,20 @@ choices = {
     '报告生成': baogao,
     '多模态问': yanshi1,
     '看个牙片': yapian,
-    '生成报告': baogo
+    '生成报告': baogaoDIA
 }
 
 def choice(x: str):
     assert x in choices.keys(), f'x = {x}'
     return choices[x]
     
+def picture(u: int):
+    if u==1:
+        return picture1
+
+def report(u: int):
+    if u==1:
+        return report1
 
 
-# response = ...
+

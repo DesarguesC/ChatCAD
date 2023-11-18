@@ -3,6 +3,7 @@ import os
 import threading
 import time
 from streamlit.runtime.scriptrunner import add_script_run_ctx as ctx
+from streamlit_modal import Modal
 # from streamlit.runtime.scriptrunner.script_run_context import get_script_run_ctx
 # import cv2
 # from chat_bot import gpt_bot
@@ -10,7 +11,7 @@ from streamlit.runtime.scriptrunner import add_script_run_ctx as ctx
 from datetime import datetime
 from PIL import Image
 import random
-from prompt.prompt import HOW, RESULT, CLASS, choice
+from prompt.prompt import HOW, RESULT, CLASS, choice, report, picture
 from revChatGPT.V3 import Chatbot
 
 system_prompt = '你的名字叫“望问医聊”，是一名精通中文的能够分析图片的数字化家庭医生，能够识别诸如医学表格、医学影像等多模态数据。'\
@@ -55,6 +56,8 @@ st.set_page_config(page_title="💬 望问医聊", layout='wide')
 
 
 response = choice('生成报告')
+picture = picture(1) if response[0]=='0' else None
+report = report(1) if response[0]=='0' else None
 
 # video_html = """
 # 		<style>
@@ -138,6 +141,14 @@ class JumpePage_debug_callback:
             st.session_state.m_cnt = 0
         if "showed" not in st.session_state.keys():
             st.session_state.showed = False
+        if "report" not in st.session_state.keys():
+            st.session_state.report = False
+        if "picture" not in st.session_state.keys():
+            st.session_state.picture = False
+        if "pic" not in st.session_state.keys():
+            st.session_state.pic = None
+        if "check" not in st.session_state.keys():
+            st.session_state.check = None
         # if "agent" not in st.session_state.keys():
             # st.session_state.agent =    Chatbot(engine='gpt-3.5-turbo', api_key=api_key, system_prompt=system_prompt, proxy=proxy)
 
@@ -300,7 +311,17 @@ def main():
         find_key_page(st.session_state)
     
 
+def reset_picture_click():
+    st.session_state.picture = True
+def reset_report_click():
+    st.session_state.report = True
 
+def show_container(modal, reset):
+    with modal.container():
+        st.markdown(report)
+        st.button(label='关闭', on_click=reset)
+
+    
 
 def chatbot(flag):
     for message in st.session_state.messages:
@@ -312,6 +333,20 @@ def chatbot(flag):
                 # x = '<img src=\"' + message['path'] + '\" style=\"zoom:90%\">'
                 assert "path" in message
                 st.image(Image.open(message["path"]))
+            if isinstance(message['button'], list):
+                trunk = message['button']
+                if len(trunk) > 1:
+                    if st.session_state.picture:
+                        with trunk[0]['modal'].container():
+                            if trunk[0]['button']:
+                                st.markdown(picture)
+                                st.button(label='关闭', on_click=reset_picture_click)
+
+
+                    if st.session_state.report:
+
+
+
         if not isinstance(message["content"], str):
             debug.image_show_call_back("first")
 
@@ -321,7 +356,9 @@ def chatbot(flag):
                                         args=(st.session_state,), accept_multiple_files=False, disabled=False)  
     # if img_file := st.sidebar.file_uploader(label="📁上传图像进行医疗影像、数据咨询", type=['png','jpg'], on_change=debug.uploader_call_back, 
                                         # args=(st.session_state,), accept_multiple_files=False, disabled=False) is not None:
-    global up
+    global up, button_list
+    button_list = []
+    col1, col2, _ = st.columns([6,6,20])
 
     if img_file is not None and not st.session_state.showed:                         
         # if img_file is not None and 'upload_num' in st.session_state:
@@ -337,7 +374,7 @@ def chatbot(flag):
         st.session_state.showed = True
 
     if prompt := st.chat_input(placeholder='任何问题都可以咨询小望~'):
-        st.session_state.messages.append({"role": "user", "content": prompt})
+        st.session_state.messages.append({"role": "user", "content": prompt, "button": button_list})
         with st.chat_message("user", avatar=user):
             st.write(prompt)           
     
@@ -349,23 +386,59 @@ def chatbot(flag):
             message_placeholder = st.empty()
             full_response = ""
             with st.spinner("请求中..."):
-                time.sleep(random.randint(130,400) / 100)
+                time.sleep(random.randint(130,400) / 150)
                 assistant_response = response[st.session_state.m_cnt] # if st.session_state.m_cnt <= 1 else st.session_state.agent.ask(prompt)
                 st.session_state.m_cnt += 1
             # Simulate stream of response with milliseconds delay
 
-            if assistant_response != '0':
-                for chunk in assistant_response:
-                    full_response += chunk + " "
-                    time.sleep(random.randint(0,9) / 100)
-                    # Add a blinking cursor to simulate typing
-                    message_placeholder.markdown(full_response + "▌")
-                message_placeholder.markdown(full_response)
+            if '画像' in assistant_response:
+                st.session_state.picture = True
+
+            if '展示' in assistant_response:
+                st.session_state.picture = True
+                # st.snow()
+                # st.balloons()
+                modal1 = Modal(title="AI患者画像", key='pic', max_width=400)
+                modal2 = Modal(title="检查报告", key='check', max_width=400)
+                # st.session_state.picture = st.session_state.report = True
+                b1 = st.button(label='查看画像')
+                b2 = st.button(label='查看报告')
+                button_list.append({'modal': modal1, 'button': b1})
+                button_list.append({'modal': modal2, 'button': b2})
+
+                st.markdown(report)
+                u1 = st.button(label='关闭', on_click=reset_picture_click)
+                u2 = st.button(label='关闭', on_click=show_container, args=(modal2, reset_report_click, ))
+
+            # if st.session_state.picture:
+            #     with col1:
+                    
+            #         if b1:
+            #             with modal1.container():
+            #                 
+                            
+            #                 button_list.append({'modal': modal1, 'button': u})     
+            # if st.session_state.report:
+            #     with col2:
+                    
+            #         button_list.append({'modal': modal2, 'button': u})
+
+            for chunk in assistant_response:
+                full_response += chunk + " "
+                time.sleep(random.randint(0,9) / 100)
+                # Add a blinking cursor to simulate typing
+                message_placeholder.markdown(full_response + "▌")
+            message_placeholder.markdown(full_response)
+            st.session_state.messages.append({"role": "assistant", "content": full_response, "button": button_list})
             # Add assistant response to chat history
-        if assistant_response != '0':
-            st.session_state.messages.append({"role": "assistant", "content": full_response})
-        if assistant_response == '0':
-            st.snwo()
+
+            
+
+        
+                        
+                            
+                                
+            
 
         # st.session_state.messages.append(message)
 
