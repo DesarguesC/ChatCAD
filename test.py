@@ -145,10 +145,14 @@ class JumpePage_debug_callback:
             st.session_state.report = False
         if "picture" not in st.session_state.keys():
             st.session_state.picture = False
-        if "pic" not in st.session_state.keys():
-            st.session_state.pic = None
-        if "check" not in st.session_state.keys():
-            st.session_state.check = None
+        if "pic_modal" not in st.session_state.keys():
+            st.session_state.pic_modal = None
+        if "rep_modal" not in st.session_state.keys():
+            st.session_state.rep_modal = None
+        if 'pic_button' not in st.session_state.keys():
+            st.session_state.pic_button = None
+        if 'rep_button' not in st.session_state.keys():
+            st.session_state.rep_button = None
         # if "agent" not in st.session_state.keys():
             # st.session_state.agent =    Chatbot(engine='gpt-3.5-turbo', api_key=api_key, system_prompt=system_prompt, proxy=proxy)
 
@@ -292,10 +296,7 @@ def main():
                 time.sleep(random.randint(10,20) / 15)
                 st.write(f'校验通过！{sd_select}用户：{name}，欢迎使用望问医聊！')
                 st.session_state.uploader_dis = False
-                st.session_state.page_state = 'chat'
-                
-                
-                        
+                st.session_state.page_state = 'chat'              
 
         assert st.session_state.upload_num >= 0
     
@@ -309,19 +310,11 @@ def main():
         main_page()
     if st.session_state.page_state == 'find_key':
         find_key_page(st.session_state)
-    
+# coll = st.columns([1,1])
+col1, col2, _ = st.columns([3,3,6])
+modal1 = Modal(title="AI患者画像", key='pic_modal', max_width=400)
+modal2 = Modal(title="检查报告", key='rep_modal', max_width=400)
 
-def reset_picture_click():
-    st.session_state.picture = True
-def reset_report_click():
-    st.session_state.report = True
-
-def show_container(modal, reset):
-    with modal.container():
-        st.markdown(report)
-        st.button(label='关闭', on_click=reset)
-
-    
 
 def chatbot(flag):
     for message in st.session_state.messages:
@@ -333,20 +326,20 @@ def chatbot(flag):
                 # x = '<img src=\"' + message['path'] + '\" style=\"zoom:90%\">'
                 assert "path" in message
                 st.image(Image.open(message["path"]))
-            if isinstance(message['button'], list):
-                trunk = message['button']
-                if len(trunk) > 1:
-                    if st.session_state.picture:
-                        with trunk[0]['modal'].container():
-                            if trunk[0]['button']:
-                                st.markdown(picture)
-                                st.button(label='关闭', on_click=reset_picture_click)
-
-
-                    if st.session_state.report:
-
-
-
+        if st.session_state.picture: 
+            with col1:
+                b1 = st.button(label='查看画像')
+                
+                if b1:
+                    with modal1.container():
+                        st.markdown(picture)
+        if st.session_state.report: 
+            with col2:
+                b2 = st.button(label='查看报告')
+                if b2:
+                    with modal2.container():
+                        st.markdown(report)
+        
         if not isinstance(message["content"], str):
             debug.image_show_call_back("first")
 
@@ -356,9 +349,8 @@ def chatbot(flag):
                                         args=(st.session_state,), accept_multiple_files=False, disabled=False)  
     # if img_file := st.sidebar.file_uploader(label="📁上传图像进行医疗影像、数据咨询", type=['png','jpg'], on_change=debug.uploader_call_back, 
                                         # args=(st.session_state,), accept_multiple_files=False, disabled=False) is not None:
-    global up, button_list
-    button_list = []
-    col1, col2, _ = st.columns([6,6,20])
+    global up
+    
 
     if img_file is not None and not st.session_state.showed:                         
         # if img_file is not None and 'upload_num' in st.session_state:
@@ -374,7 +366,7 @@ def chatbot(flag):
         st.session_state.showed = True
 
     if prompt := st.chat_input(placeholder='任何问题都可以咨询小望~'):
-        st.session_state.messages.append({"role": "user", "content": prompt, "button": button_list})
+        st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user", avatar=user):
             st.write(prompt)           
     
@@ -391,57 +383,28 @@ def chatbot(flag):
                 st.session_state.m_cnt += 1
             # Simulate stream of response with milliseconds delay
 
-            if '画像' in assistant_response:
-                st.session_state.picture = True
-
-            if '展示' in assistant_response:
-                st.session_state.picture = True
-                # st.snow()
-                # st.balloons()
-                modal1 = Modal(title="AI患者画像", key='pic', max_width=400)
-                modal2 = Modal(title="检查报告", key='check', max_width=400)
-                # st.session_state.picture = st.session_state.report = True
-                b1 = st.button(label='查看画像')
-                b2 = st.button(label='查看报告')
-                button_list.append({'modal': modal1, 'button': b1})
-                button_list.append({'modal': modal2, 'button': b2})
-
-                st.markdown(report)
-                u1 = st.button(label='关闭', on_click=reset_picture_click)
-                u2 = st.button(label='关闭', on_click=show_container, args=(modal2, reset_report_click, ))
-
-            # if st.session_state.picture:
-            #     with col1:
-                    
-            #         if b1:
-            #             with modal1.container():
-            #                 
-                            
-            #                 button_list.append({'modal': modal1, 'button': u})     
-            # if st.session_state.report:
-            #     with col2:
-                    
-            #         button_list.append({'modal': modal2, 'button': u})
-
             for chunk in assistant_response:
                 full_response += chunk + " "
                 time.sleep(random.randint(0,9) / 100)
                 # Add a blinking cursor to simulate typing
                 message_placeholder.markdown(full_response + "▌")
             message_placeholder.markdown(full_response)
-            st.session_state.messages.append({"role": "assistant", "content": full_response, "button": button_list})
+            if '画像' in assistant_response:
+                st.session_state.picture = True
+                with col1:
+                    
+                    if b1:
+                        with modal1.container():
+                            st.markdown(picture)
+            if '展示' in assistant_response:
+                st.session_state.picture = True
+                with col2:
+                    
+                    if b2:
+                        with modal2.container():
+                            st.markdown(report)
+            st.session_state.messages.append({"role": "assistant", "content": full_response})
             # Add assistant response to chat history
-
-            
-
-        
-                        
-                            
-                                
-            
-
-        # st.session_state.messages.append(message)
-
     
 def main_page():
     sd_select = st.sidebar.selectbox(
