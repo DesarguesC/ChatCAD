@@ -54,7 +54,7 @@ st.set_page_config(page_title="💬 望问医聊", layout='wide')
 
 
 
-response = choice('看个牙片')
+response = choice('生成报告')
 
 # video_html = """
 # 		<style>
@@ -208,19 +208,6 @@ def find_key_page(session_state):
         for i in range(int(1e7)):
             pass
         session_state.find_state = 'success'
-        # def verify_identity():
-        #     time.sleep(1)
-        #     session_state.find_state = 'success'
-        #                 # elif st.session_state.page_state == 'failure':
-        #     #     st.write("您输入的身份信息有误，请重新输入，或访问我们的公众号")
-        
-        # # time.sleep(3000)
-        # # session_state.find_state = 'success'
-
-
-        # thread = threading.Thread(target=verify_identity)
-        # # ctx(thread)
-        # thread.start()
 
     back = st.button('Back to previous page', on_click=debug.back_to_previous, args=(st.session_state,))
     # set_flag = 0
@@ -357,10 +344,7 @@ def chatbot(flag):
     if (not st.session_state.first_chat and st.session_state.messages[-1]["role"] != "assistant") or (img_file and st.session_state.first_chat) is not None or st.session_state.first_chat:
         st.session_state.first_chat = False
         print(prompt)
-        # if st.session_state.m_cnt == len(response)-1:
-            # st.session_state.m_cnt = 0
-        # st.session_state.m_cnt = 0 if st.session_state.m_cnt == len(response)-1 else (st.session_state.m_cnt + 1)
-        # st.sidebar.write(assistant_response)
+
         with st.chat_message(name = "assistant", avatar=logo):
             message_placeholder = st.empty()
             full_response = ""
@@ -370,14 +354,18 @@ def chatbot(flag):
                 st.session_state.m_cnt += 1
             # Simulate stream of response with milliseconds delay
 
-            for chunk in assistant_response:
-                full_response += chunk + " "
-                time.sleep(random.randint(0,9) / 100)
-                # Add a blinking cursor to simulate typing
-                message_placeholder.markdown(full_response + "▌")
-            message_placeholder.markdown(full_response)
+            if assistant_response != '0':
+                for chunk in assistant_response:
+                    full_response += chunk + " "
+                    time.sleep(random.randint(0,9) / 100)
+                    # Add a blinking cursor to simulate typing
+                    message_placeholder.markdown(full_response + "▌")
+                message_placeholder.markdown(full_response)
             # Add assistant response to chat history
-        st.session_state.messages.append({"role": "assistant", "content": full_response})
+        if assistant_response != '0':
+            st.session_state.messages.append({"role": "assistant", "content": full_response})
+        if assistant_response == '0':
+            st.snwo()
 
         # st.session_state.messages.append(message)
 
