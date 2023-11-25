@@ -56,8 +56,8 @@ st.set_page_config(page_title="💬 望问医聊", layout='wide')
 
 
 response = choice('生成报告')
-picture = picture(1) if response[0]=='0' else None
-report = report(1) if response[0]=='0' else None
+picture = picture(1) # if response[0]=='0' else None
+report = report(1) # if response[0]=='0' else None
 
 # video_html = """
 # 		<style>
@@ -311,10 +311,11 @@ def main():
     if st.session_state.page_state == 'find_key':
         find_key_page(st.session_state)
 # coll = st.columns([1,1])
-col1, col2, _ = st.columns([3,3,6])
-modal1 = Modal(title="AI患者画像", key='pic_modal', max_width=400)
-modal2 = Modal(title="检查报告", key='rep_modal', max_width=400)
 
+
+col1, col2, _ = st.columns([3,3,6])
+modal1 = Modal(title="AI患者画像", key='pic_modal', max_width=600)
+modal2 = Modal(title="检查报告", key='rep_modal', max_width=600)
 
 def chatbot(flag):
     for message in st.session_state.messages:
@@ -326,19 +327,23 @@ def chatbot(flag):
                 # x = '<img src=\"' + message['path'] + '\" style=\"zoom:90%\">'
                 assert "path" in message
                 st.image(Image.open(message["path"]))
-        if st.session_state.picture: 
-            with col1:
-                b1 = st.button(label='查看画像')
-                
-                if b1:
-                    with modal1.container():
-                        st.markdown(picture)
-        if st.session_state.report: 
-            with col2:
-                b2 = st.button(label='查看报告')
-                if b2:
-                    with modal2.container():
-                        st.markdown(report)
+    
+    # button appearance can be put at this level
+    
+    if st.session_state.picture: 
+        with col1:
+            b1 = st.button(label='查看画像', key='pic_button')
+            
+            if b1:
+                with modal1.container():
+                    st.markdown(picture)
+    
+    # if st.session_state.report: 
+        with col2:
+            b2 = st.button(label='查看报告', key='rep_button')
+            if b2:
+                with modal2.container():
+                    st.markdown(report)
         
         if not isinstance(message["content"], str):
             debug.image_show_call_back("first")
@@ -379,7 +384,7 @@ def chatbot(flag):
             full_response = ""
             with st.spinner("请求中..."):
                 time.sleep(random.randint(130,400) / 150)
-                assistant_response = response[st.session_state.m_cnt] # if st.session_state.m_cnt <= 1 else st.session_state.agent.ask(prompt)
+                assistant_response = response[st.session_state.m_cnt % len(response)] # if st.session_state.m_cnt <= 1 else st.session_state.agent.ask(prompt)
                 st.session_state.m_cnt += 1
             # Simulate stream of response with milliseconds delay
 
@@ -391,18 +396,20 @@ def chatbot(flag):
             message_placeholder.markdown(full_response)
             if '画像' in assistant_response:
                 st.session_state.picture = True
-                with col1:
-                    
-                    if b1:
-                        with modal1.container():
-                            st.markdown(picture)
+                # if st.session_state.picture: 
+                #     with col1:
+                #         b1 = st.button(label='查看画像')
+                #         if b1:
+                #             with modal1.container():
+                #                 st.markdown(picture)
             if '展示' in assistant_response:
                 st.session_state.picture = True
-                with col2:
-                    
-                    if b2:
-                        with modal2.container():
-                            st.markdown(report)
+                # if st.session_state.report: 
+                #     with col2:
+                #         b2 = st.button(label='查看报告')
+                #         if b2:
+                #             with modal2.container():
+                #                 st.markdown(report)
             st.session_state.messages.append({"role": "assistant", "content": full_response})
             # Add assistant response to chat history
     
