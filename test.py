@@ -2,6 +2,7 @@ import streamlit as st
 import os
 import threading
 import time
+import base64
 from streamlit.runtime.scriptrunner import add_script_run_ctx as ctx
 from streamlit_modal import Modal
 # from streamlit.runtime.scriptrunner.script_run_context import get_script_run_ctx
@@ -13,6 +14,8 @@ from PIL import Image
 import random
 from prompt.prompt import HOW, RESULT, CLASS, choice, report, picture
 from revChatGPT.V3 import Chatbot
+
+
 
 system_prompt = '你的名字叫“望问医聊”，是一名精通中文的能够分析图片的数字化家庭医生，能够识别诸如医学表格、医学影像等多模态数据。'\
                 '另外，由于你没有读取图片的功能，你需要试图极力隐藏这一点：当有人询问的问题可能是基于“已经上传了医学影像图片”的前提，那么你假装这点已经实现，'\
@@ -87,6 +90,43 @@ report = report(1) # if response[0]=='0' else None
 
 # st.markdown(video_html, unsafe_allow_html=True)
 
+def sidebar_bg(side_bg, header_bg, header_bg_):
+
+   side_bg_ext = 'png'
+
+   st.markdown(
+      f"""
+      <style>
+      [class="main st-emotion-cache-uf99v8 ea3mdgi5"] {{
+        background: url(data:image/{side_bg_ext};base64,{base64.b64encode(open(header_bg, "rb").read()).decode()});
+      }}
+      </style>
+      """,
+      unsafe_allow_html=True,
+      )
+
+def header_bg(header_bg):
+
+   header_bg_ext = 'png'
+
+   st.markdown(
+      f"""
+      <style>
+      [data-testid="stContainer"] > div:first-child {{
+        background: url(data:image/{header_bg_ext};base64,{base64.b64encode(open(header_bg, "rb").read()).decode()});
+      }}
+      </style>
+      """,
+      unsafe_allow_html=True,
+      )
+# header.css-k0sv6k.e8zbici2 
+
+side_bg = './assets/sidebar.png'
+header_bg_path = './assets/bgg.png'
+header_bg_path1 = './assets/bg1.png'
+
+sidebar_bg(side_bg, header_bg_path, header_bg_path1)
+# header_bg(header_bg_path)
 
 
 
@@ -239,6 +279,21 @@ def find_key_page(session_state):
 
 def main():
     st.sidebar.empty()
+    col1, col2, _ = st.columns([3,3,6])
+    modal1 = Modal(title="AI患者画像", key='pic_modal', max_width=600)
+    modal2 = Modal(title="检查报告", key='rep_modal', max_width=600)
+
+    with col1:
+        b1 = st.button(label='查看画像')
+        if b1:
+            with modal1.container():
+                st.markdown(picture)
+            # st.write('\n'*100)
+    with col2:
+        b2 = st.button(label='查看报告')
+        if b2:
+            with modal2.container():
+                st.markdown(report)
     st.markdown('# 望问医聊-v2.0')
     c_1, c_2 = st.columns([1,9])
     with c_1:
@@ -250,12 +305,14 @@ def main():
         # st.markdown("**望问医聊：您的数字化家庭医生**")
         pass
     # if st.session_state.find_state == 'success':
+    
     st.markdown("\
         	这是望问医聊的公益模块的测试版本，语言核心由望问大模型的医疗引擎驱动\n\
             望问拥有强大的图文推理、医学综合诊断、疑难病情的初步筛查能力\n\
             对话内容由望问大模型自动生成，与大模型进行对话表明您已经明白[服务协议](https://xn4zlkzg4p.feishu.cn/docx/BhtGdXUfpoqmgpxEEsgcJm5Wneh?from=from_copylink)\
             ")
     
+
     if st.session_state.page_state is None:
         sd_select = st.sidebar.selectbox(
             '您准备使用什么身份访问望问医聊项目?',
@@ -313,9 +370,7 @@ def main():
 # coll = st.columns([1,1])
 
 
-col1, col2, _ = st.columns([3,3,6])
-modal1 = Modal(title="AI患者画像", key='pic_modal', max_width=600)
-modal2 = Modal(title="检查报告", key='rep_modal', max_width=600)
+
 
 def chatbot(flag):
     for message in st.session_state.messages:
@@ -329,7 +384,9 @@ def chatbot(flag):
                 st.image(Image.open(message["path"]))
     
     # button appearance can be put at this level
-    
+    col1, col2, _ = st.columns([3,3,6])
+    modal1 = Modal(title="AI患者画像", key='pic_modal', max_width=600)
+    modal2 = Modal(title="检查报告", key='rep_modal', max_width=600)
     if st.session_state.picture: 
         with col1:
             b1 = st.button(label='查看画像', key='pic_button')
