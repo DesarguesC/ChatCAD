@@ -2,6 +2,7 @@ import streamlit as st
 import os
 import threading
 import time
+import base64
 from streamlit.runtime.scriptrunner import add_script_run_ctx as ctx
 # from streamlit_modal import Modal
 # from streamlit.runtime.scriptrunner.script_run_context import get_script_run_ctx
@@ -58,7 +59,7 @@ st.set_page_config(page_title="💬 望问医聊", layout='wide')
 response = choice('医生诊中')
 
 
-def sidebar_bg(header_bg):
+def sidebar_bg(header_bg, sidebar_bg, down_bg):
 
    side_bg_ext = 'png'
 
@@ -69,16 +70,26 @@ def sidebar_bg(header_bg):
         background: url(data:image/{side_bg_ext};base64,{base64.b64encode(open(header_bg, "rb").read()).decode()});
       }}
       </style>
+      <style>
+      [data-testid="stSidebar"] {{
+        background: url(data:image/png;base64,{base64.b64encode(open(sidebar_bg, "rb").read()).decode()});
+      }}
+      </style>
+      <style>
+      [class="stChatFloatingInputContainer st-emotion-cache-90vs21 e1d2x3se2"] {{
+        background: url(data:image/png;base64,{base64.b64encode(open(down_bg, "rb").read()).decode()});
+      }}
+      </style>
       """,
       unsafe_allow_html=True,
       )
 
-
+# class="stChatFloatingInputContainer st-emotion-cache-90vs21 e1d2x3se2"
 side_bg = './assets/sidebar.png'
 header_bg_path = './assets/bgg.png'
-header_bg_path1 = './assets/bg1.png'
+down_bg = './assets/bg1.png'
 
-sidebar_bg(header_bg_path)
+sidebar_bg(header_bg_path, side_bg, down_bg)
 
 
 
