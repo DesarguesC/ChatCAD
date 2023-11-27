@@ -3,7 +3,7 @@ import os
 import threading
 import time
 from streamlit.runtime.scriptrunner import add_script_run_ctx as ctx
-from streamlit_modal import Modal
+# from streamlit_modal import Modal
 # from streamlit.runtime.scriptrunner.script_run_context import get_script_run_ctx
 # import cv2
 # from chat_bot import gpt_bot
@@ -55,9 +55,9 @@ st.set_page_config(page_title="💬 望问医聊", layout='wide')
 
 
 
-response = choice('生成报告')
-picture = picture(1) if response[0]=='0' else None
-report = report(1) if response[0]=='0' else None
+response = choice('医生诊中')
+# picture = picture(1) if response[0]=='0' else None
+# report = report(1) if response[0]=='0' else None
 
 # video_html = """
 # 		<style>
@@ -311,15 +311,15 @@ def main():
         find_key_page(st.session_state)
     
 
-def reset_picture_click():
-    st.session_state.picture = True
-def reset_report_click():
-    st.session_state.report = True
+# def reset_picture_click():
+#     st.session_state.picture = True
+# def reset_report_click():
+#     st.session_state.report = True
 
-def show_container(modal, reset):
-    with modal.container():
-        st.markdown(report)
-        st.button(label='关闭', on_click=reset)
+# def show_container(modal, reset):
+#     with modal.container():
+#         st.markdown(report)
+#         st.button(label='关闭', on_click=reset)
 
     
 
@@ -333,22 +333,22 @@ def chatbot(flag):
                 # x = '<img src=\"' + message['path'] + '\" style=\"zoom:90%\">'
                 assert "path" in message
                 st.image(Image.open(message["path"]))
-            if isinstance(message['button'], list):
-                trunk = message['button']
-                if len(trunk) > 1:
-                    if st.session_state.picture:
-                        with trunk[0]['modal'].container():
-                            if trunk[0]['button']:
-                                st.markdown(picture)
-                                st.button(label='关闭', on_click=reset_picture_click)
+            # if isinstance(message['button'], list):
+            #     trunk = message['button']
+            #     if len(trunk) > 1:
+            #         if st.session_state.picture:
+            #             with trunk[0]['modal'].container():
+            #                 if trunk[0]['button']:
+            #                     st.markdown(picture)
+            #                     st.button(label='关闭', on_click=reset_picture_click)
 
 
-                    if st.session_state.report:
+                    # if st.session_state.report:
 
 
 
-        if not isinstance(message["content"], str):
-            debug.image_show_call_back("first")
+        # if not isinstance(message["content"], str):
+            # debug.image_show_call_back("first")
 
 
 
@@ -391,24 +391,24 @@ def chatbot(flag):
                 st.session_state.m_cnt += 1
             # Simulate stream of response with milliseconds delay
 
-            if '画像' in assistant_response:
-                st.session_state.picture = True
+            # if '画像' in assistant_response:
+            #     st.session_state.picture = True
 
-            if '展示' in assistant_response:
-                st.session_state.picture = True
-                # st.snow()
-                # st.balloons()
-                modal1 = Modal(title="AI患者画像", key='pic', max_width=400)
-                modal2 = Modal(title="检查报告", key='check', max_width=400)
-                # st.session_state.picture = st.session_state.report = True
-                b1 = st.button(label='查看画像')
-                b2 = st.button(label='查看报告')
-                button_list.append({'modal': modal1, 'button': b1})
-                button_list.append({'modal': modal2, 'button': b2})
+            # if '展示' in assistant_response:
+            #     st.session_state.picture = True
+            #     # st.snow()
+            #     # st.balloons()
+            #     modal1 = Modal(title="AI患者画像", key='pic', max_width=400)
+            #     modal2 = Modal(title="检查报告", key='check', max_width=400)
+            #     # st.session_state.picture = st.session_state.report = True
+            #     b1 = st.button(label='查看画像')
+            #     b2 = st.button(label='查看报告')
+            #     button_list.append({'modal': modal1, 'button': b1})
+            #     button_list.append({'modal': modal2, 'button': b2})
 
-                st.markdown(report)
-                u1 = st.button(label='关闭', on_click=reset_picture_click)
-                u2 = st.button(label='关闭', on_click=show_container, args=(modal2, reset_report_click, ))
+            #     st.markdown(report)
+            #     u1 = st.button(label='关闭', on_click=reset_picture_click)
+            #     u2 = st.button(label='关闭', on_click=show_container, args=(modal2, reset_report_click, ))
 
             # if st.session_state.picture:
             #     with col1:
