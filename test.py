@@ -56,38 +56,29 @@ st.set_page_config(page_title="💬 望问医聊", layout='wide')
 
 
 response = choice('医生诊中')
-# picture = picture(1) if response[0]=='0' else None
-# report = report(1) if response[0]=='0' else None
-
-# video_html = """
-# 		<style>
-
-# 		#myVideo {
-# 		  position: fixed;
-# 		  right: 0;
-# 		  bottom: 0;
-# 		  min-width: 100%; 
-# 		  min-height: 100%;
-# 		}
-
-# 		.content {
-# 		  position: fixed;
-# 		  bottom: 0;
-# 		  background: rgba(0, 0, 0, 0.5);
-# 		  color: #f1f1f1;
-# 		  width: 100%;
-# 		  padding: 20px;
-# 		}
-
-# 		</style>	
-# 		<video controls>
-# 	<source type="video/mp4" src="/root/ChatCAD/assets/try.mp4:video/mp4;base64,AAAAHGZ0eXBtcDQyAAAAAG1wNDJpc29....../l/L+X8v5AAAAMgfDg==">
-# </video>
-#         """
-
-# st.markdown(video_html, unsafe_allow_html=True)
 
 
+def sidebar_bg(header_bg):
+
+   side_bg_ext = 'png'
+
+   st.markdown(
+      f"""
+      <style>
+      [class="main st-emotion-cache-uf99v8 ea3mdgi5"] {{
+        background: url(data:image/{side_bg_ext};base64,{base64.b64encode(open(header_bg, "rb").read()).decode()});
+      }}
+      </style>
+      """,
+      unsafe_allow_html=True,
+      )
+
+
+side_bg = './assets/sidebar.png'
+header_bg_path = './assets/bgg.png'
+header_bg_path1 = './assets/bg1.png'
+
+sidebar_bg(header_bg_path)
 
 
 
