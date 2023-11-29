@@ -51,12 +51,13 @@ st.set_page_config(page_title="💬 望问医聊", layout='wide')
 #     '该吃药了': chiyao,
 #     '报告生成': baogao,
 #     '多模态问': yanshi1,
-#     '看个牙片': yapian
+#     '看个牙片': yapian,
+#     '语音输入': yuyinshuru
 # }
 
 
 
-response = choice('医生诊中')
+response = choice('语音输入')
 
 
 def sidebar_bg(header_bg, sidebar_bg, down_bg):

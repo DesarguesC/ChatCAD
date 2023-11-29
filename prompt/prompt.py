@@ -20,7 +20,8 @@ choices = {
     '报告生成': baogao,
     '多模态问': yanshi1,
     '看个牙片': yapian,
-    '生成报告': baogaoDIA
+    '生成报告': baogaoDIA,
+    '语音输入': yuyinshuru
 }
 
 def choice(x: str):
