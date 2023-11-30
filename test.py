@@ -57,7 +57,7 @@ st.set_page_config(page_title="💬 望问医聊", layout='wide')
 
 
 
-response = choice('对话演示1')
+response = choice('住院住院')
 
 
 def sidebar_bg(header_bg, sidebar_bg, down_bg):
