@@ -90,7 +90,7 @@ report = report(1) # if response[0]=='0' else None
 
 # st.markdown(video_html, unsafe_allow_html=True)
 
-def sidebar_bg(side_bg, header_bg, header_bg_):
+def sidebar_bg(header_bg, sidebar_bg, down_bg):
 
    side_bg_ext = 'png'
 
@@ -101,32 +101,26 @@ def sidebar_bg(side_bg, header_bg, header_bg_):
         background: url(data:image/{side_bg_ext};base64,{base64.b64encode(open(header_bg, "rb").read()).decode()});
       }}
       </style>
-      """,
-      unsafe_allow_html=True,
-      )
-
-def header_bg(header_bg):
-
-   header_bg_ext = 'png'
-
-   st.markdown(
-      f"""
       <style>
-      [data-testid="stContainer"] > div:first-child {{
-        background: url(data:image/{header_bg_ext};base64,{base64.b64encode(open(header_bg, "rb").read()).decode()});
+      [data-testid="stSidebar"] {{
+        background: url(data:image/png;base64,{base64.b64encode(open(sidebar_bg, "rb").read()).decode()});
+      }}
+      </style>
+      <style>
+      [class="stChatFloatingInputContainer st-emotion-cache-90vs21 e1d2x3se2"] {{
+        background: url(data:image/png;base64,{base64.b64encode(open(down_bg, "rb").read()).decode()});
       }}
       </style>
       """,
       unsafe_allow_html=True,
       )
-# header.css-k0sv6k.e8zbici2 
 
+# class="stChatFloatingInputContainer st-emotion-cache-90vs21 e1d2x3se2"
 side_bg = './assets/sidebar.png'
 header_bg_path = './assets/bgg.png'
-header_bg_path1 = './assets/bg1.png'
+down_bg = './assets/bg1.png'
 
-sidebar_bg(side_bg, header_bg_path, header_bg_path1)
-# header_bg(header_bg_path)
+sidebar_bg(header_bg_path, side_bg, down_bg)
 
 
 
