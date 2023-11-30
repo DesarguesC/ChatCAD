@@ -57,7 +57,7 @@ st.set_page_config(page_title="💬 望问医聊", layout='wide')
 
 
 
-response = choice('语音输入')
+response = choice('诊后乱问')
 
 
 def sidebar_bg(header_bg, sidebar_bg, down_bg):
