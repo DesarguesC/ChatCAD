@@ -57,7 +57,7 @@ st.set_page_config(page_title="💬 望问医聊", layout='wide')
 
 
 
-response = choice('诊后乱问')
+response = choice('对话演示1')
 
 
 def sidebar_bg(header_bg, sidebar_bg, down_bg):
@@ -87,7 +87,7 @@ def sidebar_bg(header_bg, sidebar_bg, down_bg):
 
 # class="stChatFloatingInputContainer st-emotion-cache-90vs21 e1d2x3se2"
 side_bg = './assets/sidebar.png'
-header_bg_path = './assets/mobile.png'
+header_bg_path = './assets/pad.png'
 down_bg = './assets/bg1.png'
 
 sidebar_bg(header_bg_path, side_bg, down_bg)
